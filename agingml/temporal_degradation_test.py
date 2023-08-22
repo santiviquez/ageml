@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.model_selection import TimeSeriesSplit
 from skmisc.loess import loess
+import optuna
 from tqdm import tqdm
 
 def train_test_prod_split(data, target, n_train, n_test, n_prod):
@@ -41,45 +42,66 @@ def train_test_prod_split(data, target, n_train, n_test, n_prod):
     return X_train, X_test, X_prod, X_reference, y_train, y_test, y_prod, y_reference
 
 
+def hyperparameter_opt(X_train, y_train, model, n_trials):
+    lgbm_params = {
+        'num_leaves': optuna.distributions.IntDistribution(2, 2*12),
+        'max_depth': optuna.distributions.IntDistribution(1, 13),
+        'min_child_samples': optuna.distributions.IntDistribution(10, int(len(X_train) * 0.5)),
+        'n_estimators': optuna.distributions.IntDistribution(100, 2000, 1),
+        'learning_rate': optuna.distributions.FloatDistribution(0.0001, 0.3),
+        'reg_alpha': optuna.distributions.FloatDistribution(0, 1000),
+        'reg_lambda': optuna.distributions.FloatDistribution(0, 1000),
+        'colsample_bytree': optuna.distributions.FloatDistribution(0, 1),
+        'subsample': optuna.distributions.FloatDistribution(0, 1)
+    }
+    
+    # TODO: create distributions for the other models
+    elastic_net_params = {}
+    random_forest_params = {}
+    mlp_regressor_params = {}
+
+    if type(model).__name__ == 'LGBMRegressor':
+        param_distributions = lgbm_params
+    elif type(model).__name__ == 'ElasticNet':
+        param_distributions = elastic_net_params
+    elif type(model).__name__ == 'RandomForestRegressor':
+        param_distributions = random_forest_params
+    elif type(model).__name__ == 'MLPRegressor':
+        param_distributions = mlp_regressor_params
+        
+
+    optuna_search = optuna.integration.OptunaSearchCV(
+        model, param_distributions, n_trials=n_trials, verbose=0,
+        cv=TimeSeriesSplit(n_splits=4), n_jobs=-1
+    )
+
+    optuna_search.fit(X_train, y_train)
+
+    trial = optuna_search.study_.best_trial
+    optimal_params = trial.params
+
+    return optimal_params
+
 def compute_model_errors(data, target, model, n_train, n_test, n_prod):
     # create random split
     X_train, X_test, X_prod, X_reference, y_train, y_test, y_prod, y_reference = train_test_prod_split(data, target, n_train, n_test, n_prod)
     
-    # cross-validation for timeseries
-    tscv = TimeSeriesSplit(n_splits=4)
-    train_errors = []
-    val_errors = []
-    y_dict = {}
-    for i, (train_index, val_index) in enumerate(tscv.split(X_train)):
-        X_train_fold = X_train.iloc[train_index]
-        y_train_fold = y_train.iloc[train_index]
-        
-        X_val_fold = X_train.iloc[val_index]
-        y_val_fold = y_train.iloc[val_index]
-        
-        # train the model
-        model.fit(X_train, y_train)
+    # find optimal hyperparmeters
+    optimal_params = hyperparameter_opt(X_train, y_train, model, n_trials=2)
+    model.set_params(**optimal_params)
     
-        # make predictions
-        y_train_pred_fold = model.predict(X_train_fold)
-        y_val_pred_fold = model.predict(X_val_fold)
-        
-        # calculate fold errors
-        # TODO: allow other metrics
-        train_error_fold = mean_absolute_percentage_error(y_train_fold, y_train_pred_fold)
-        val_error_fold = mean_absolute_percentage_error(y_val_fold,  y_val_pred_fold)
-        
-        train_errors.append(train_error_fold)
-        val_errors.append(val_error_fold)
-        
-    # rule for a valid model
-    # TODO: pass this as a parameter
-    if np.mean(val_errors) < 0.2 and np.mean(train_errors) < 0.2:
+    # train the model
+    model.fit(X_train, y_train)
+
+    # flag valid models
+    y_test_pred = model.predict(X_test)
+    test_error = mean_absolute_percentage_error(y_test, y_test_pred) # TODO: allow other metrics
+    if test_error < 0.2: # TODO: pass as parameter
         is_model_valid = True
     else:
         is_model_valid = False
     
-    # train on all the data
+    # train on all available data before production
     X = pd.concat([X_train, X_test])
     y = pd.concat([y_train, y_test])
     model.fit(X, y)
@@ -87,7 +109,7 @@ def compute_model_errors(data, target, model, n_train, n_test, n_prod):
     y_test_pred = model.predict(X_test)
     y_prod_pred = model.predict(X_prod)
     y_reference_pred = model.predict(X_reference)
-    
+
     y_train_dict = {}
     y_test_dict = {}
     y_prod_dict = {}
