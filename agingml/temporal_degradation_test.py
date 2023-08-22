@@ -7,7 +7,7 @@ from skmisc.loess import loess
 from tqdm import tqdm
 import optuna
 from optuna.exceptions import ExperimentalWarning
-from warnings
+import warnings
 
 optuna.logging.set_verbosity(0)
 warnings.simplefilter("ignore", category=ExperimentalWarning)
