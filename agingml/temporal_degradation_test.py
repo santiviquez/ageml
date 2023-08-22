@@ -4,8 +4,14 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.model_selection import TimeSeriesSplit
 from skmisc.loess import loess
-import optuna
 from tqdm import tqdm
+import optuna
+from optuna.exceptions import ExperimentalWarning
+from warnings
+
+optuna.logging.set_verbosity(0)
+warnings.simplefilter("ignore", category=ExperimentalWarning)
+
 
 def train_test_prod_split(data, target, n_train, n_test, n_prod):
     # sample deplyoment point
