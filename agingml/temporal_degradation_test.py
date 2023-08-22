@@ -87,7 +87,7 @@ def compute_model_errors(data, target, model, n_train, n_test, n_prod):
     X_train, X_test, X_prod, X_reference, y_train, y_test, y_prod, y_reference = train_test_prod_split(data, target, n_train, n_test, n_prod)
     
     # find optimal hyperparmeters
-    optimal_params = hyperparameter_opt(X_train, y_train, model, n_trials=2)
+    optimal_params = hyperparameter_opt(X_train, y_train, model, n_trials=25)
     model.set_params(**optimal_params)
     
     # train the model
@@ -178,7 +178,7 @@ def aggregate_errors_data(errors_df, metric, freq='D', only_valid_models=True):
     # TODO: clean this function
     # This function aggregates data in time frequencies and also checks if a model is valid
     
-    freq_errors_df = errors_df.groupby(['partition', 'simulation_id', pd.Grouper(key='timestamp', freq='D')]) \
+    freq_errors_df = errors_df.groupby(['partition', 'simulation_id', pd.Grouper(key='timestamp', freq=freq)]) \
                               .apply(lambda group: metric(group.y, group.y_pred)) \
                               .rename("error").reset_index().sort_values(['simulation_id', 'timestamp'])
 
