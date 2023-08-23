@@ -71,7 +71,7 @@ def hyperparameter_opt(X_train, y_train, model, n_trials):
         'max_iter': optuna.distributions.IntDistribution(1000, 2000)
     }
     random_forest_params = {
-        'n_estimators': optuna.distributions.IntDistribution(100, 2000, 1),
+        'n_estimators': optuna.distributions.IntDistribution(100, 400, 1),
         'max_depth': optuna.distributions.IntDistribution(1, 13),
         'min_samples_split': optuna.distributions.IntDistribution(2, 10)
 
@@ -112,7 +112,7 @@ def compute_model_errors(data, target, model, n_train, n_test, n_prod):
     X_train, X_test, X_prod, X_reference, y_train, y_test, y_prod, y_reference = train_test_prod_split(data, target, n_train, n_test, n_prod)
     
     # find optimal hyperparmeters
-    optimal_params = hyperparameter_opt(X_train, y_train, model, n_trials=50)
+    optimal_params = hyperparameter_opt(X_train, y_train, model, n_trials=25)
     model.set_params(**optimal_params)
     
     # train the model
