@@ -52,7 +52,6 @@ def compute_model_errors(data, target, model, min_n_train, idx_train_start, n_te
         optimal_params = tdt.hyperparameter_opt(X_train, y_train, model, n_trials=25)
         model.set_params(**optimal_params)
     
-    print(model.get_params())
     # train the model
     model.fit(X_train, y_train)
 
