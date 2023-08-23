@@ -5,6 +5,8 @@ from lightgbm import LGBMRegressor
 from sklearn.metrics import mean_absolute_percentage_error
 from agingml import temporal_degradation_test as tdt
 from sklearn.linear_model import ElasticNet
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
 
 dataset_url = 'data/avocados_demand_forecasting_dataset.csv'
 date_columns = ['date', 'inference_time']
@@ -27,13 +29,16 @@ dataset = 'avocados'
 n_train = 52
 n_test = 12
 n_prod = 12
-n_simulations = 100
-model = ElasticNet()
+n_simulations = 1000
 metric = mean_absolute_percentage_error
 freq = 'W'
+# models = [LGBMRegressor(), ElasticNet(), RandomForestRegressor(), MLPRegressor()]
+models = [ElasticNet(), RandomForestRegressor(), MLPRegressor()]
 
-errors_df = tdt.evaluation_runner(data, target, model, n_train, n_test, n_prod, n_simulations)
-errors_df.to_parquet(f'results/aging/{dataset}/aging_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod.parquet')
+for model in models:
+    print(f'Running process for: {type(model).__name__}')
+    errors_df = tdt.evaluation_runner(data, target, model, n_train, n_test, n_prod, n_simulations)
+    errors_df.to_parquet(f'results/aging/{dataset}/aging_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod.parquet')
 
-d_errors_df = tdt.aggregate_errors_data(errors_df, metric=metric, freq=freq, only_valid_models=True)
-d_errors_df.to_parquet(f'results/aging/{dataset}/aging_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{freq}.parquet')
+    d_errors_df = tdt.aggregate_errors_data(errors_df, metric=metric, freq=freq, only_valid_models=True)
+    d_errors_df.to_parquet(f'results/aging/{dataset}/aging_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{freq}.parquet')
