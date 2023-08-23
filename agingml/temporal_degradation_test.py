@@ -62,7 +62,9 @@ def hyperparameter_opt(X_train, y_train, model, n_trials):
     }
     
     # TODO: create distributions for the other models
-    elastic_net_params = {}
+    elastic_net_params = {
+        'alpha': optuna.distributions.FloatDistribution(0, 1000)
+    }
     random_forest_params = {}
     mlp_regressor_params = {}
 
@@ -221,7 +223,7 @@ def get_trend_lines(data, quantiles, metric):
         q_df = data.groupby(['model_age'])[metric].agg(lambda x: x.quantile([q])).rename(metric).reset_index() 
         x = q_df['model_age']
         e = q_df['error']
-        
+
         # l = loess(x, y, degree=2, span=0.05)
         # l.fit()
         # pred = l.predict(x, stderror=True)
