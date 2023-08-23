@@ -49,7 +49,7 @@ def compute_model_errors(data, target, model, min_n_train, idx_train_start, n_te
                                                                              n_prod, retraining_id)
     # find optimal hyperparmeters
     if retraining_id == 0:
-        optimal_params = tdt.hyperparameter_opt(X_train, y_train, model, n_trials=3)
+        optimal_params = tdt.hyperparameter_opt(X_train, y_train, model, n_trials=25)
         model.set_params(**optimal_params)
     
     print(model.get_params())
@@ -146,7 +146,7 @@ def aggregate_errors_data(errors_df, metric, freq='D', only_valid_models=True):
     # This function aggregates data in time frequencies and also checks if a model is valid
     
     freq_errors_df = errors_df.groupby(['partition', 'simulation_id', 'retraining_id', 
-                                        pd.Grouper(key='timestamp', freq='D')]) \
+                                        pd.Grouper(key='timestamp', freq=freq)]) \
                               .apply(lambda group: metric(group.y, group.y_pred)) \
                               .rename("error").reset_index().sort_values(['simulation_id', 'timestamp'])
 
