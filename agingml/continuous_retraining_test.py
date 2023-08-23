@@ -14,8 +14,8 @@ warnings.simplefilter("ignore", category=ExperimentalWarning)
 warnings.simplefilter("ignore", category=ConvergenceWarning)
 
 
-def sample_train_start_point(data, n_test, n_prod, n_retrainings):
-    idx_train_start = np.random.randint(0, len(data) - (2 * n_test * n_retrainings + n_prod))
+def sample_train_start_point(data, min_n_train, n_test, n_prod, n_retrainings):
+    idx_train_start = np.random.randint(0, len(data) - (min_n_train + n_test * n_retrainings + n_prod))
     
     return idx_train_start
 
@@ -116,7 +116,7 @@ def continuos_retraining_runner(data, target, model, min_n_train, n_test, n_prod
     # empty error lists
     simulation_results = []
     for simulation_id in tqdm(range(n_simulations)):
-        idx_train_start = sample_train_start_point(data, n_test, n_prod, n_retrainings)
+        idx_train_start = sample_train_start_point(data, min_n_train, n_test, n_prod, n_retrainings)
         model.set_params(random_state=np.random.randint(0, n_simulations))
         retraining_results = []
         # for every simulation compute the models errors, append the errors to the error lists
