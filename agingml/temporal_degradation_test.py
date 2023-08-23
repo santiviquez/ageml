@@ -112,7 +112,7 @@ def compute_model_errors(data, target, model, n_train, n_test, n_prod):
     X_train, X_test, X_prod, X_reference, y_train, y_test, y_prod, y_reference = train_test_prod_split(data, target, n_train, n_test, n_prod)
     
     # find optimal hyperparmeters
-    optimal_params = hyperparameter_opt(X_train, y_train, model, n_trials=25)
+    optimal_params = hyperparameter_opt(X_train, y_train, model, n_trials=50)
     model.set_params(**optimal_params)
     
     # train the model
