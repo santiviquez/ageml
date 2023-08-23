@@ -7,10 +7,13 @@ from skmisc.loess import loess
 from tqdm import tqdm
 import optuna
 from optuna.exceptions import ExperimentalWarning
+from sklearn.exceptions import ConvergenceWarning
 import warnings
+
 
 optuna.logging.set_verbosity(0)
 warnings.simplefilter("ignore", category=ExperimentalWarning)
+warnings.simplefilter("ignore", category=ConvergenceWarning)
 
 
 def train_test_prod_split(data, target, n_train, n_test, n_prod):
@@ -63,10 +66,24 @@ def hyperparameter_opt(X_train, y_train, model, n_trials):
     
     # TODO: create distributions for the other models
     elastic_net_params = {
-        'alpha': optuna.distributions.FloatDistribution(0, 1000)
+        'alpha': optuna.distributions.FloatDistribution(0, 1000),
+        'l1_ratio': optuna.distributions.FloatDistribution(0, 1),
+        'max_iter': optuna.distributions.IntDistribution(1000, 2000)
     }
-    random_forest_params = {}
-    mlp_regressor_params = {}
+    random_forest_params = {
+        'n_estimators': optuna.distributions.IntDistribution(100, 2000, 1),
+        'max_depth': optuna.distributions.IntDistribution(1, 13),
+        'min_samples_split': optuna.distributions.IntDistribution(2, 10)
+
+    }
+    mlp_regressor_params = {
+        'hidden_layer_sizes': optuna.distributions.IntDistribution(20, 150),
+        'activation': optuna.distributions.CategoricalDistribution(['relu', 'tanh']),
+        'solver': optuna.distributions.CategoricalDistribution(['lbfgs', 'sgd', 'adam']),
+        'alpha': optuna.distributions.FloatDistribution(0.0001, 0.01),
+        'learning_rate_init': optuna.distributions.FloatDistribution(0.0001, 0.01),
+        'max_iter': optuna.distributions.IntDistribution(300, 1000)
+    }
 
     if type(model).__name__ == 'LGBMRegressor':
         param_distributions = lgbm_params
