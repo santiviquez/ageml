@@ -220,16 +220,17 @@ def get_trend_lines(data, quantiles, metric):
         trend_line = {}
         q_df = data.groupby(['model_age'])[metric].agg(lambda x: x.quantile([q])).rename(metric).reset_index() 
         x = q_df['model_age']
-        y = q_df[metric]
-
-        l = loess(x, y, degree=2, span=0.05)
-        l.fit()
-        pred = l.predict(x, stderror=True)
-        lowess = pred.values
+        e = q_df['error']
+        
+        # l = loess(x, y, degree=2, span=0.05)
+        # l.fit()
+        # pred = l.predict(x, stderror=True)
+        # lowess = pred.values
         
         trend_line['quantile'] = q
         trend_line['model_age'] = x
-        trend_line[metric] = lowess
+        trend_line['error'] = e
+        # trend_line[metric] = lowess
         trend_lines.append(trend_line)
     
     trend_lines_df = pd.DataFrame(trend_lines)
