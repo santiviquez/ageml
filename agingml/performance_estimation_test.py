@@ -11,7 +11,8 @@ def evaluate_nannyml(data, aging_df, metric, chunk_period):
     comparison_results = []
     pe_results = {}
     realized_results = {}
-
+    constant_threshold = nml.thresholds.ConstantThreshold(lower=None, upper=0.2)
+    
     for simulation_id in tqdm(simulation_ids):
         simulation_df = nml_data[nml_data['simulation_id'] == simulation_id]
 
@@ -29,7 +30,8 @@ def evaluate_nannyml(data, aging_df, metric, chunk_period):
             timestamp_column_name='timestamp',
             metrics=[metric],
             chunk_period=chunk_period,
-            tune_hyperparameters=False
+            tune_hyperparameters=False,
+            thresholds={'mape': constant_threshold}
         )
 
         estimator.fit(reference_df)
