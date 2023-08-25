@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import nannyml as nml
+import tqdm
 
 
 def evaluate_nannyml(data, aging_df, metric, chunk_period):
@@ -10,8 +11,8 @@ def evaluate_nannyml(data, aging_df, metric, chunk_period):
     comparison_results = []
     pe_results = {}
     realized_results = {}
-    
-    for simulation_id in simulation_ids:
+
+    for simulation_id in tqdm(simulation_ids):
         simulation_df = nml_data[nml_data['simulation_id'] == simulation_id]
 
         # get original reference set
