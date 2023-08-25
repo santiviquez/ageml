@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import nannyml as nml
-import tqdm
+from tqdm import tqdm
 
 
 def evaluate_nannyml(data, aging_df, metric, chunk_period):
