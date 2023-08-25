@@ -31,7 +31,7 @@ n_test = 2200
 n_prod = 4400
 n_simulations = 1500
 metric = mean_absolute_percentage_error
-freq = 'd'
+freq = 'D'
 models = [LGBMRegressor(), ElasticNet(), RandomForestRegressor(), MLPRegressor()]
 
 for model in models:
