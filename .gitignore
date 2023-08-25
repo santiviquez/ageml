@@ -5,6 +5,7 @@ __pycache__/
 *$py.class
 .DS_Store
 /results
+/figures/performance_estimation
 
 # C extensions
 *.so
