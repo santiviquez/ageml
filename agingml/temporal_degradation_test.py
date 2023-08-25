@@ -8,7 +8,9 @@ from tqdm import tqdm
 import optuna
 from optuna.exceptions import ExperimentalWarning
 from sklearn.exceptions import ConvergenceWarning
+import seaborn as sns
 import warnings
+
 
 
 optuna.logging.set_verbosity(0)
@@ -255,3 +257,27 @@ def get_trend_lines(data, quantiles, metric):
     trend_lines_df = pd.DataFrame(trend_lines)
     trend_lines_df = trend_lines_df.explode(['model_age', metric]).reset_index(drop=True)
     return trend_lines_df
+
+
+def plot_aging_chart(aging_df, metric, freq, plot_name):
+
+    trend_lines_df = get_trend_lines(data=aging_df, quantiles=[0.25, 0.50, 0.75], metric='error')
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    sns.lineplot(data=trend_lines_df, x='model_age', y='error', linewidth=1.5,
+                palette=['#E8FF3A', 'black', '#FB4748'], hue='quantile', legend=False, ax=ax)
+
+    sns.scatterplot(data=aging_df[aging_df['partition'] == 'prod'],
+                    x='model_age', y='error', s=7, alpha=0.20, color='#3b0280', linewidth=0, ax=ax)
+
+    ax.legend(title='Percentile', labels=['25th', 'Median', '75th'], loc='upper right')
+    ax.set_xlabel(f'Model Age [{freq}]')
+    ax.set_ylabel(metric)
+    ax.set_ylim(0, 1)
+
+    ax.set_title(plot_name)
+    # plt.savefig(path, format='svg')
+    # plt.show()
+
+    return fig
