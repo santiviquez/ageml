@@ -269,7 +269,7 @@ def plot_aging_chart(aging_df, metric, freq, plot_name):
                 palette=['#E8FF3A', 'black', '#FB4748'], hue='quantile', legend=False, ax=ax)
 
     sns.scatterplot(data=aging_df[aging_df['partition'] == 'prod'],
-                    x='model_age', y='error', s=7, alpha=0.20, color='#3b0280', linewidth=0, ax=ax)
+                    x='model_age', y='error', s=7, alpha=0.1, color='#3b0280', linewidth=0, ax=ax)
 
     ax.legend(title='Percentile', labels=['25th', 'Median', '75th'], loc='upper right')
     ax.set_xlabel(f'Model Age [{freq}]')
