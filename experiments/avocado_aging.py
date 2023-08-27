@@ -28,12 +28,11 @@ target.index = data.index
 dataset = 'avocados'
 n_train = 52
 n_test = 12
-n_prod = 12
-n_simulations = 1000
+n_prod = 24
+n_simulations = 3000
 metric = mean_absolute_percentage_error
 freq = 'W'
-# models = [LGBMRegressor(), ElasticNet(), RandomForestRegressor(), MLPRegressor()]
-models = [ElasticNet(), RandomForestRegressor(), MLPRegressor()]
+models = [LGBMRegressor(), ElasticNet(), RandomForestRegressor(), MLPRegressor()]
 
 for model in models:
     print(f'Running process for: {type(model).__name__}')
