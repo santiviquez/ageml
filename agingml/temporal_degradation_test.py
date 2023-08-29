@@ -274,7 +274,7 @@ def plot_aging_chart(aging_df, metric, freq, plot_name):
     ax.legend(title='Percentile', labels=['25th', 'Median', '75th'], loc='upper right')
     ax.set_xlabel(f'Model Age [{freq}]')
     ax.set_ylabel(metric)
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, max(aging_df[aging_df['partition'] == 'prod']['error']))
 
     ax.set_title(plot_name)
     # plt.savefig(path, format='svg')
