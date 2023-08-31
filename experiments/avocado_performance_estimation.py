@@ -36,6 +36,7 @@ n_simulations = 3000
 n_retrainings = 3
 metric = mean_absolute_percentage_error
 freq = 'W'
+chunk_period='W'
 models = [LGBMRegressor(), ElasticNet(), RandomForestRegressor(), MLPRegressor()]
 
 
@@ -43,11 +44,11 @@ for model in models:
     print(f'Running process for: {type(model).__name__}')
     aging_df = pd.read_parquet(f'results/aging/{dataset}/aging_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod.parquet')
     aging_df.index = aging_df.index.rename('timestamp_index')
-    pe_comparison, pe_result, realized_result = pet.evaluate_nannyml(data, aging_df, metric='mape', chunk_period='M')
-    pe_comparison.to_parquet(f'results/performance_estimation/{dataset}/pe_comparison_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_.parquet')
+    pe_comparison, pe_result, realized_result = pet.evaluate_nannyml(data, aging_df, metric='mape', chunk_period=chunk_period)
+    pe_comparison.to_parquet(f'results/performance_estimation/{dataset}/pe_comparison_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{n_prod}_chunk{chunk_period}.parquet')
     for i in range(len(pe_result)):
         figure = pe_result[i].compare(realized_result[i]).plot()
-        figure.write_image(f'figures/performance_estimation/{dataset}/pe_comparison_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{i}.svg', format='svg')
+        figure.write_image(f'figures/performance_estimation/{dataset}/pe_comparison_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{i}_chunk{chunk_period}.svg', format='svg')
 
         figure = realized_result[i].plot()
-        figure.write_image(f'figures/performance_estimation/{dataset}/realized_result_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{i}.svg', format='svg')
+        figure.write_image(f'figures/performance_estimation/{dataset}/realized_result_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{i}_chunk{chunk_period}.svg', format='svg')
