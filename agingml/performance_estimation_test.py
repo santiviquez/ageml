@@ -6,25 +6,29 @@ from tqdm import tqdm
 
 def evaluate_nannyml(data, aging_df, metric, chunk_period):
     simulation_ids = aging_df['simulation_id'].unique()
-    nml_data = aging_df.merge(data, left_index=True, right_index=True, how='left')
-
+    print("here")
+    # nml_data = aging_df.merge(data, left_index=True, right_index=True, how='left')
+    nml_data = aging_df.join(data, how='left') 
+    print("merged")
+    feature_column_names = data.columns.tolist()
+    del data
+    del aging_df
     comparison_results = []
     pe_results = {}
     realized_results = {}
-    constant_threshold = nml.thresholds.ConstantThreshold(lower=None, upper=0.2)
-    
+    constant_threshold = nml.thresholds.ConstantThreshold(lower=None, upper=0.15)
     for simulation_id in tqdm(simulation_ids):
         simulation_df = nml_data[nml_data['simulation_id'] == simulation_id]
 
         # get original reference set
-        reference_df = simulation_df[simulation_df['partition'] == 'reference']
-
+        reference_df = pd.concat([simulation_df[simulation_df['partition'] == 'train'], simulation_df[simulation_df['partition'] == 'reference']])
+        reference_df = reference_df.drop_duplicates()
         # get original prod set
         analysis_df = simulation_df[simulation_df['partition'] == 'prod']
 
         # fit DLE from NannyML
         estimator = nml.DLE(
-            feature_column_names=data.columns.tolist(),
+            feature_column_names=feature_column_names,
             y_pred='y_pred',
             y_true='y',
             timestamp_column_name='timestamp',
