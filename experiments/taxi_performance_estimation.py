@@ -50,12 +50,12 @@ for model in models:
     test_mape = pd.DataFrame(test_mape, columns=['test_mape']).reset_index()
     d_aging_df = test_mape[test_mape['test_mape'] <= 0.1]
 
-    valid_model_ids = d_aging_df['simulation_id'].drop_duplicates().values
+    valid_model_ids = d_aging_df['simulation_id'].drop_duplicates()
     aging_df = aging_df[aging_df['simulation_id'].isin(valid_model_ids)]
 
     pe_comparison, pe_result, realized_result = pet.evaluate_nannyml(data, aging_df, metric='mape', chunk_period=chunk_period)
     pe_comparison.to_parquet(f'results/performance_estimation/{dataset}/pe_comparison_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{n_prod}_chunk{chunk_period}.parquet')
-    for i in range(0, len(pe_result), 15):
+    for i in valid_model_ids:
         figure = pe_result[i].compare(realized_result[i]).plot()
         figure.write_image(f'figures/performance_estimation/{dataset}/pe_comparison_{dataset}_{type(model).__name__}_{n_simulations}_simulations_{n_prod}_prod_{i}_chunk{chunk_period}.svg', format='svg')
 
