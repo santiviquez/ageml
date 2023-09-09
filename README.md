@@ -14,11 +14,17 @@ The Temporal Degradation Test examines how various models perform when trained o
 ### Temporal Degradation Test
 Examines how various models perform when trained on different samples of the same dataset. This framework is based on the aging framework developed by [Vela et al.](https://www.nature.com/articles/s41598-022-15245-z) in 2022.
 
+![temporal degradation test]("figures/temporal_degradadation_test.svg")
+
 ### Continuous Retraining Test
 Simulated a fixed-schedule retraining process of a machine learning model in production.
 
+![continuous retraining test]("figures/continuous_retraining_test.svg")
+
 ### Performance Estimation Test
 Explores the potential of performance estimation methods to identify predictive performance degradation without ground truth data. Currently, uses NannyML's Direct Loss Estimation (DLE) method for this.
+
+![performance estimation test]("figures/performance_estimation_test.svg")
 
 ## Authors
 
