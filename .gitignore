@@ -6,7 +6,7 @@ __pycache__/
 .DS_Store
 /results
 /figures/performance_estimation
-
+/figures/pdfs
 # C extensions
 *.so
 
