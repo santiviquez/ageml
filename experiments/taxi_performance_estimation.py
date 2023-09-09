@@ -36,7 +36,7 @@ n_simulations = 1500
 metric = mean_absolute_percentage_error
 freq = 'D'
 chunk_period='D'
-models = [ElasticNet(), RandomForestRegressor(), LGBMRegressor()]
+models = [ElasticNet(), RandomForestRegressor(), LGBMRegressor(), MLPRegressor()]
 
 
 for model in models:
