@@ -1,7 +1,7 @@
 
 # ageML
 
-ageML is the early begining of a framework to assess the temporal predictive performance degreadation of machine learning models.
+ageML is the early beginning of a framework to assess the temporal predictive performance degradation of machine learning models.
 
 Disclamer, this project is still very unmature so, code is not the cleanest. Some things might be hardcoded but the idea is to make it better
 and usable by other people so they can use it to explore performance degradation pattern on other datasets, under any machine learning technique.
