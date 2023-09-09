@@ -21,7 +21,9 @@ def evaluate_nannyml(data, aging_df, metric, chunk_period):
         simulation_df = nml_data[nml_data['simulation_id'] == simulation_id]
 
         # get original reference set
-        reference_df = pd.concat([simulation_df[simulation_df['partition'] == 'train'], simulation_df[simulation_df['partition'] == 'reference']])
+        # reference_df = pd.concat([simulation_df[simulation_df['partition'] == 'train'], simulation_df[simulation_df['partition'] == 'reference']])
+        reference_df = simulation_df[simulation_df['partition'] == 'reference']
+
         reference_df = reference_df.drop_duplicates()
         # get original prod set
         analysis_df = simulation_df[simulation_df['partition'] == 'prod']
