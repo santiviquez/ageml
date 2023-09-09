@@ -7,7 +7,7 @@ import optuna
 from optuna.exceptions import ExperimentalWarning
 from sklearn.exceptions import ConvergenceWarning
 import warnings
-from agingml import temporal_degradation_test as tdt
+from ageml import temporal_degradation_test as tdt
 
 optuna.logging.set_verbosity(0)
 warnings.simplefilter("ignore", category=ExperimentalWarning)

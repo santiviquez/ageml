@@ -3,13 +3,13 @@ sys.path.insert(1, './')
 import pandas as pd
 from lightgbm import LGBMRegressor
 from sklearn.metrics import mean_absolute_percentage_error
-from agingml import temporal_degradation_test as tdt
+from ageml import temporal_degradation_test as tdt
 from sklearn.linear_model import ElasticNet
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
 import nannyml as nml
 
-from agingml import performance_estimation_test as pet
+from ageml import performance_estimation_test as pet
 
 dataset_url = 'data/avocados_demand_forecasting_dataset.csv'
 date_columns = ['date', 'inference_time']
