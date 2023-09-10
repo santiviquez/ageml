@@ -17,8 +17,6 @@ This project implements three test to study the "aging" process that machine lea
 
 The currently implemented test are:
 
-The Temporal Degradation Test examines how various models perform when trained on different samples of the same dataset, shedding light on degradation patterns. The Continuous Retraining Test simulates a production environment by assessing the impact of continuous model retraining. Finally, the Performance Estimation Test explores the potential of performance estimation methods, such as Direct Loss Estimation (DLE), to identify degradation without ground truth data. Our find- ings reveal diverse degradation patterns influenced by machine learning methodologies, with continuous retraining offering partial relief but not complete resolution. Performance estima- tion methods emerge as vital early warning systems, enabling timely interventions to maintain model efficacy.
-
 ### Temporal Degradation Test
 Examines how various models perform when trained on different samples of the same dataset. This framework is based on the aging framework developed by [Vela et al.](https://www.nature.com/articles/s41598-022-15245-z) in 2022.
 
