@@ -25,7 +25,7 @@ Examines how various models perform when trained on different samples of the sam
 </p>
 
 ### Continuous Retraining Test
-Simulated a fixed-schedule retraining process of a machine learning model in production.
+Simulates a fixed-schedule retraining process of a machine learning model in production.
 
 <p align="center">
  <img src="figures/continuous_retraining_test.svg" alt="continuous retraining test" width="600"/>
