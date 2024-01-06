@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
+import seaborn as sns
 from tqdm import tqdm
 
 
@@ -99,5 +101,63 @@ class TemporalDegradation:
             results_df_list.append(results_df)
 
         results_df = pd.concat(results_df_list)
+        self.results = results_df
 
-        return results_df
+        return self
+    
+    def get_results(self, freq=None, metric=None):
+        # TODO: allow aggregation of results by different frequiencies e.g. Day, Week, Month, etc
+        # Allow calculation of diffenrent metrics
+        return self.results
+    
+
+
+    def _get_trend_lines(self, data, quantiles):
+        trend_lines = []
+        data = data[data['partition'] == 'prod']
+        
+        for q in quantiles:
+            trend_line = {}
+            q_df = data.groupby(['model_age'])[self.metric_name].agg(lambda x: x.quantile([q])).rename(self.metric_name).reset_index()
+            x = q_df['model_age']
+            e = q_df[self.metric_name]
+        
+            trend_line['quantile'] = q
+            trend_line['model_age'] = x
+            trend_line[self.metric_name] = e
+            
+            trend_lines.append(trend_line)
+        
+        trend_lines_df = pd.DataFrame(trend_lines)
+        trend_lines_df = trend_lines_df.explode(['model_age', self.metric_name]).reset_index(drop=True)
+        return trend_lines_df
+
+
+    def plot(self, freq=None, metric=None, plot_name=None):
+        # TODO: allow aggregation of results by different frequiencies e.g. Day, Week, Month, etc
+        # move aggregation and metric calculation somewhere else
+        
+        self.metric = metric
+        self.metric_name = self.metric.__name__
+        # self.results[self.metric_name] = self.metric(self.results['y'], self.results['y_pred'])
+        self.results[self.metric_name] = np.abs(self.results['y'] - self.results['y_pred'])
+        self.results['model_age'] = self.results['model_age'].dt.days
+
+        trend_lines_df = self._get_trend_lines(data=self.results, quantiles=[0.25, 0.50, 0.75])
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        sns.lineplot(data=trend_lines_df, x='model_age', y=self.metric_name, linewidth=1.5,
+                    palette=['#E8FF3A', 'black', '#FB4748'], hue='quantile', legend=False, ax=ax)
+
+        sns.scatterplot(data=self.results[self.results['partition'] == 'prod'],
+                        x='model_age', y=self.metric_name, s=7, alpha=0.1, color='#3b0280', linewidth=0, ax=ax)
+
+        ax.legend(title='Percentile', labels=['25th', 'Median', '75th'], loc='upper right')
+        ax.set_xlabel(f'Model Age [{freq}]')
+        ax.set_ylabel(metric)
+        # ax.set_ylim(0, max(self.results[self.results['partition'] == 'prod'][self.metric_name]))
+        ax.set_title(plot_name)
+        # plt.savefig(path, format='svg')
+        plt.show()
+    
