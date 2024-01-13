@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 
 from ageml import TemporalDegradation
 
@@ -9,7 +9,7 @@ dataset_url = 'data/avocados_demand_forecasting_dataset.csv'
 data = pd.read_csv(dataset_url)
 data = data.drop(columns=['date'])
 X = data
-y = data[['demand']]
+y = data['demand']
 
 model = LinearRegression()
 
@@ -33,7 +33,7 @@ assert len(y_prod) == 24, "len(y_prod) should be 24"
 
 experiment.run(data, model)
 
-results = experiment.get_results()
+results = experiment.get_results(freq='W', metric=mean_absolute_error)
 print(results)
 
-experiment.plot(metric=mean_absolute_error, plot_name='Hola')
+experiment.plot(freq='W', metric=mean_absolute_error, plot_name='Avocados sales prediction degradation plot')

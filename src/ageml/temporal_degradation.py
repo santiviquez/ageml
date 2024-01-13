@@ -4,6 +4,11 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
 
+import random
+
+random.seed(42)
+np.random.seed(42)
+
 
 class TemporalDegradation:
     def __init__(self,
@@ -83,10 +88,10 @@ class TemporalDegradation:
 
     
     def run(self, data, model):
-        
         self.data = data
         self.model = model
 
+        self.data[self.timestamp_column_name] = pd.to_datetime(self.data[self.timestamp_column_name])
         self.data = self.data.set_index(self.timestamp_column_name)
         X = self.data.drop(columns=[self.target_column_name])
         y = self.data[[self.target_column_name]]
@@ -105,11 +110,29 @@ class TemporalDegradation:
 
         return self
     
-    def get_results(self, freq=None, metric=None):
-        # TODO: allow aggregation of results by different frequiencies e.g. Day, Week, Month, etc
-        # Allow calculation of diffenrent metrics
-        return self.results
+    def _aggregate_results(self):
+        # TODO: clean this function
+        results_agg_df = self.results.groupby(['partition', 'simulation_id', pd.Grouper(key=self.timestamp_column_name, freq=self.freq)]) \
+                                .apply(lambda group: self.metric(group.y, group.y_pred)) \
+                                .rename(self.metric_name).reset_index().sort_values(['simulation_id', self.timestamp_column_name])
+
+        last_train_dates_df = results_agg_df[results_agg_df['partition'] == 'train'] \
+                                .groupby(['simulation_id']) \
+                                .agg(last_val_date=(self.timestamp_column_name, 'max')) \
+                                .reset_index()
+
+        results_agg_df = pd.merge(results_agg_df, last_train_dates_df, on='simulation_id', how='left')
+        results_agg_df['model_age'] = (results_agg_df[self.timestamp_column_name] - 
+                                    results_agg_df['last_val_date']) / np.timedelta64(1, self.freq)
+        
+        return results_agg_df
     
+    def get_results(self, freq=None, metric=None):
+        self.freq = freq
+        self.metric = metric
+        self.metric_name = self.metric.__name__
+        results_agg_df = self._aggregate_results()
+        return results_agg_df
 
 
     def _get_trend_lines(self, data, quantiles):
@@ -134,29 +157,25 @@ class TemporalDegradation:
 
 
     def plot(self, freq=None, metric=None, plot_name=None):
-        # TODO: allow aggregation of results by different frequiencies e.g. Day, Week, Month, etc
-        # move aggregation and metric calculation somewhere else
-        
+        self.freq = freq
         self.metric = metric
         self.metric_name = self.metric.__name__
-        # self.results[self.metric_name] = self.metric(self.results['y'], self.results['y_pred'])
-        self.results[self.metric_name] = np.abs(self.results['y'] - self.results['y_pred'])
-        self.results['model_age'] = self.results['model_age'].dt.days
+        results_agg_df = self._aggregate_results()
 
-        trend_lines_df = self._get_trend_lines(data=self.results, quantiles=[0.25, 0.50, 0.75])
+        trend_lines_df = self._get_trend_lines(data=results_agg_df, quantiles=[0.25, 0.50, 0.75])
 
         fig, ax = plt.subplots(figsize=(8, 6))
 
         sns.lineplot(data=trend_lines_df, x='model_age', y=self.metric_name, linewidth=1.5,
                     palette=['#E8FF3A', 'black', '#FB4748'], hue='quantile', legend=False, ax=ax)
 
-        sns.scatterplot(data=self.results[self.results['partition'] == 'prod'],
+        sns.scatterplot(data=results_agg_df[results_agg_df['partition'] == 'prod'],
                         x='model_age', y=self.metric_name, s=7, alpha=0.1, color='#3b0280', linewidth=0, ax=ax)
 
         ax.legend(title='Percentile', labels=['25th', 'Median', '75th'], loc='upper right')
         ax.set_xlabel(f'Model Age [{freq}]')
-        ax.set_ylabel(metric)
-        # ax.set_ylim(0, max(self.results[self.results['partition'] == 'prod'][self.metric_name]))
+        ax.set_ylabel(self.metric_name)
+        ax.set_ylim(0, 1e8)
         ax.set_title(plot_name)
         # plt.savefig(path, format='svg')
         plt.show()
