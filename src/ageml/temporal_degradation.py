@@ -136,7 +136,10 @@ class TemporalDegradation:
         
         return results_agg_df
     
-    def get_results(self, freq, metric, min_test_score):
+    def get_raw_results(self):
+        return self.results
+
+    def get_results(self, freq, metric, min_test_score=None):
         if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_score"]) and \
             self.freq == freq and self.metric == metric and self.min_test_score == min_test_score:
             return self.results_agg_df
@@ -171,7 +174,7 @@ class TemporalDegradation:
         return trend_lines_df
 
 
-    def plot(self, freq, metric, min_test_score, plot_name='Temporal degradation'):
+    def plot(self, freq, metric, min_test_score=None, plot_name='Temporal degradation'):
         self.plot_name = plot_name
         if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_score"]) and \
             self.freq == freq and self.metric == metric and self.min_test_score == min_test_score:
