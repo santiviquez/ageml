@@ -33,12 +33,11 @@ assert len(y_prod) == 24, "len(y_prod) should be 24"
 
 experiment.run(data, model)
 
-results = experiment.get_results(freq='W', metric=mean_absolute_error, min_test_score=1e7)
 experiment.plot(freq='W', metric=mean_absolute_error, min_test_score=1e7, plot_name='Avocados sales prediction degradation plot')
 
-
+results = experiment.get_results(freq='W', metric=mean_absolute_error, min_test_score=1e7)
 print(results)
 
 # unprocessed results
-# raw_results = experiment.get_raw_results()
-# print(results)
+raw_results = experiment.get_raw_results()
+print(raw_results)
