@@ -125,29 +125,28 @@ class TemporalDegradation:
         results_agg_df['model_age'] = (results_agg_df[self.timestamp_column_name] - 
                                     results_agg_df['last_val_date']) / np.timedelta64(1, self.freq)
         
-        if self.min_test_score:
+        if self.min_test_error:
             model_validity_df = results_agg_df.groupby(['simulation_id', 'partition']).agg({self.metric_name:"mean"}).reset_index()
             model_validity_df = model_validity_df[model_validity_df['partition'] == 'test']
-            model_validity_df['is_model_valid'] = model_validity_df[self.metric_name] < self.min_test_score
+            model_validity_df['is_model_valid'] = model_validity_df[self.metric_name] < self.min_test_error
             results_agg_df = pd.merge(results_agg_df, model_validity_df.drop(columns=[self.metric_name, 'partition']), on=['simulation_id'], how='left')
             results_agg_df = results_agg_df[results_agg_df['is_model_valid'] == True]
 
-            print(f"Returning {model_validity_df['is_model_valid'].sum()} models with a test {self.metric_name} < {self.min_test_score}")
+            print(f"Returning {model_validity_df['is_model_valid'].sum()} models with a test {self.metric_name} < {self.min_test_error}")
         
         return results_agg_df
     
     def get_raw_results(self):
         return self.results
 
-    def get_results(self, freq, metric, min_test_score=None):
-        if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_score"]) and \
-            self.freq == freq and self.metric == metric and self.min_test_score == min_test_score:
+    def get_results(self, freq, metric, min_test_error=None):
+        if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_error"]) and \
+            self.freq == freq and self.metric == metric and self.min_test_error == min_test_error:
             return self.results_agg_df
         else:
-            print("running get_results form scratch")
             self.freq = freq
             self.metric = metric
-            self.min_test_score = min_test_score
+            self.min_test_error = min_test_error
             self.metric_name = self.metric.__name__
             self.results_agg_df = self._aggregate_results()
         return self.results_agg_df
@@ -174,17 +173,16 @@ class TemporalDegradation:
         return trend_lines_df
 
 
-    def plot(self, freq, metric, min_test_score=None, plot_name='Temporal degradation'):
+    def plot(self, freq, metric, min_test_error=None, plot_name='Temporal degradation'):
         self.plot_name = plot_name
-        if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_score"]) and \
-            self.freq == freq and self.metric == metric and self.min_test_score == min_test_score:
+        if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_error"]) and \
+            self.freq == freq and self.metric == metric and self.min_test_error == min_test_error:
             self._plot_results()
         else:
-            print("running ploting form scratch")
             self.freq = freq
             self.metric = metric
             self.metric_name = self.metric.__name__
-            self.min_test_score = min_test_score
+            self.min_test_error = min_test_error
             self.results_agg_df = self._aggregate_results()
             self._plot_results()
             
@@ -203,7 +201,7 @@ class TemporalDegradation:
         ax.legend(title='Percentile', labels=['25th', 'Median', '75th'], loc='upper right')
         ax.set_xlabel(f'Model Age [{self.freq}]')
         ax.set_ylabel(self.metric_name)
-        ax.set_ylim(0, 1e8)
+        # ax.set_ylim(0, 1e8)
         ax.set_title(self.plot_name)
         # plt.savefig(path, format='svg')
         plt.show()
