@@ -125,12 +125,22 @@ class TemporalDegradation:
         results_agg_df['model_age'] = (results_agg_df[self.timestamp_column_name] - 
                                     results_agg_df['last_val_date']) / np.timedelta64(1, self.freq)
         
+        if self.min_test_score:
+            model_validity_df = results_agg_df.groupby(['simulation_id', 'partition']).agg({self.metric_name:"mean"}).reset_index()
+            model_validity_df = model_validity_df[model_validity_df['partition'] == 'test']
+            model_validity_df['is_model_valid'] = model_validity_df[self.metric_name] < self.min_test_score
+            results_agg_df = pd.merge(results_agg_df, model_validity_df.drop(columns=[self.metric_name, 'partition']), on=['simulation_id'], how='left')
+            results_agg_df = results_agg_df[results_agg_df['is_model_valid'] == True]
+
+            print(f"Returning {model_validity_df['is_model_valid'].sum()} models with a test {self.metric_name} < {self.min_test_score}")
+        
         return results_agg_df
     
-    def get_results(self, freq=None, metric=None):
+    def get_results(self, freq=None, metric=None, min_test_score=None):
         self.freq = freq
         self.metric = metric
         self.metric_name = self.metric.__name__
+        self.min_test_score = min_test_score
         results_agg_df = self._aggregate_results()
         return results_agg_df
 
@@ -156,10 +166,11 @@ class TemporalDegradation:
         return trend_lines_df
 
 
-    def plot(self, freq=None, metric=None, plot_name=None):
+    def plot(self, freq=None, metric=None, plot_name=None, min_test_score=None):
         self.freq = freq
         self.metric = metric
         self.metric_name = self.metric.__name__
+        self.min_test_score = min_test_score
         results_agg_df = self._aggregate_results()
 
         trend_lines_df = self._get_trend_lines(data=results_agg_df, quantiles=[0.25, 0.50, 0.75])
