@@ -19,7 +19,7 @@ experiment = TemporalDegradation(
     n_train_samples=52,
     n_test_samples=12,
     n_prod_samples=24,
-    n_simulations=100)
+    n_simulations=10)
 
 X_train, X_test, X_prod, y_train, y_test, y_prod = experiment._train_test_prod_split(X, y)
 
@@ -34,6 +34,11 @@ assert len(y_prod) == 24, "len(y_prod) should be 24"
 experiment.run(data, model)
 
 results = experiment.get_results(freq='W', metric=mean_absolute_error, min_test_score=1e7)
+experiment.plot(freq='W', metric=mean_absolute_error, min_test_score=1e7, plot_name='Avocados sales prediction degradation plot')
+
+
 print(results)
 
-experiment.plot(freq='W', metric=mean_absolute_error, min_test_score=1e7, plot_name='Avocados sales prediction degradation plot')
+# unprocessed results
+# raw_results = experiment.get_raw_results()
+# print(results)
