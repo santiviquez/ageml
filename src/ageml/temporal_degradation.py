@@ -136,13 +136,18 @@ class TemporalDegradation:
         
         return results_agg_df
     
-    def get_results(self, freq=None, metric=None, min_test_score=None):
-        self.freq = freq
-        self.metric = metric
-        self.metric_name = self.metric.__name__
-        self.min_test_score = min_test_score
-        results_agg_df = self._aggregate_results()
-        return results_agg_df
+    def get_results(self, freq, metric, min_test_score):
+        if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_score"]) and \
+            self.freq == freq and self.metric == metric and self.min_test_score == min_test_score:
+            return self.results_agg_df
+        else:
+            print("running get_results form scratch")
+            self.freq = freq
+            self.metric = metric
+            self.min_test_score = min_test_score
+            self.metric_name = self.metric.__name__
+            self.results_agg_df = self._aggregate_results()
+        return self.results_agg_df
 
 
     def _get_trend_lines(self, data, quantiles):
@@ -166,28 +171,36 @@ class TemporalDegradation:
         return trend_lines_df
 
 
-    def plot(self, freq=None, metric=None, plot_name=None, min_test_score=None):
-        self.freq = freq
-        self.metric = metric
-        self.metric_name = self.metric.__name__
-        self.min_test_score = min_test_score
-        results_agg_df = self._aggregate_results()
+    def plot(self, freq, metric, min_test_score, plot_name='Temporal degradation'):
+        self.plot_name = plot_name
+        if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_score"]) and \
+            self.freq == freq and self.metric == metric and self.min_test_score == min_test_score:
+            self._plot_results()
+        else:
+            print("running ploting form scratch")
+            self.freq = freq
+            self.metric = metric
+            self.metric_name = self.metric.__name__
+            self.min_test_score = min_test_score
+            self.results_agg_df = self._aggregate_results()
+            self._plot_results()
+            
 
-        trend_lines_df = self._get_trend_lines(data=results_agg_df, quantiles=[0.25, 0.50, 0.75])
+    def _plot_results(self):
+        trend_lines_df = self._get_trend_lines(data=self.results_agg_df, quantiles=[0.25, 0.50, 0.75])
 
         fig, ax = plt.subplots(figsize=(8, 6))
 
         sns.lineplot(data=trend_lines_df, x='model_age', y=self.metric_name, linewidth=1.5,
                     palette=['#E8FF3A', 'black', '#FB4748'], hue='quantile', legend=False, ax=ax)
 
-        sns.scatterplot(data=results_agg_df[results_agg_df['partition'] == 'prod'],
+        sns.scatterplot(data=self.results_agg_df[self.results_agg_df['partition'] == 'prod'],
                         x='model_age', y=self.metric_name, s=7, alpha=0.1, color='#3b0280', linewidth=0, ax=ax)
 
         ax.legend(title='Percentile', labels=['25th', 'Median', '75th'], loc='upper right')
-        ax.set_xlabel(f'Model Age [{freq}]')
+        ax.set_xlabel(f'Model Age [{self.freq}]')
         ax.set_ylabel(self.metric_name)
         ax.set_ylim(0, 1e8)
-        ax.set_title(plot_name)
+        ax.set_title(self.plot_name)
         # plt.savefig(path, format='svg')
         plt.show()
-    
