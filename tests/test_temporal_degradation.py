@@ -33,7 +33,7 @@ assert len(y_prod) == 24, "len(y_prod) should be 24"
 
 experiment.run(data, model)
 
-experiment.plot(freq='W', metric=mean_absolute_error, min_test_error=1e7, plot_name='Avocados sales prediction degradation plot')
+experiment.plot(freq='W', metric=mean_absolute_error, min_test_error=1e7, plot_name='Model Ageing Chart: Avocado Sales Prediction - LinearRegression')
 
 results = experiment.get_results(freq='W', metric=mean_absolute_error, min_test_error=1e7)
 print(results)
