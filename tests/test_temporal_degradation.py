@@ -1,16 +1,11 @@
-import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error
-
 from ageml import TemporalDegradation
 from ageml.datasets import load_avocado_sales
-
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
 
 data = load_avocado_sales()
 X = data
 y = data['demand']
-
-model = LinearRegression()
 
 experiment = TemporalDegradation(
     timestamp_column_name='inference_time',
@@ -30,7 +25,7 @@ assert len(y_train) == 52, "len(y_train) should be 52"
 assert len(y_test) == 12, "len(y_test) should be 12"
 assert len(y_prod) == 24, "len(y_prod) should be 24"
 
-experiment.run(data, model)
+experiment.run(data, model=LinearRegression())
 
 experiment.plot(freq='W', metric=mean_absolute_error, min_test_error=1e7, plot_name='Model Ageing Chart: Avocado Sales Prediction - LinearRegression')
 
