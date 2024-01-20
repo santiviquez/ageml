@@ -38,9 +38,12 @@ pip install .
 ## Quickstart
 
 ```python
+from ageml import TemporalDegradation
+from ageml.datasets import load_avocado_sales
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
-from ageml import TemporalDegradation
+
+data = load_avocado_sales()
 
 experiment = TemporalDegradation(
     timestamp_column_name='inference_time',
