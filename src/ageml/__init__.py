@@ -1,1 +1,2 @@
 from .temporal_degradation import TemporalDegradation
+from .datasets import load_avocado_sales

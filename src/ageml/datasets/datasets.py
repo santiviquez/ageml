@@ -1,7 +1,7 @@
 from importlib import resources
 import pandas as pd
 
-DATA_MODULE = "ageml.datasets.data"
+DATA_MODULE = "src.ageml.datasets.data"
 
 def load_csv_file_to_df(local_file):
     with resources.path(DATA_MODULE, local_file) as data:
