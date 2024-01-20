@@ -6,7 +6,7 @@ Disclaimer: This project is still in its early stages, so the code interface mig
 
 
 <p align="center">
- <img src="figures/aging/model_aging_plot_avocados_lr.png" alt="temporal degradation plot of lgbm regressor on taxi dataset" width="600"/>
+ <img src="figures/model_aging_plot_avocados_lr.png" alt="temporal degradation plot of a linear regressor on the avocado sales dataset" width="600"/>
 </p>
 
 ## Features
