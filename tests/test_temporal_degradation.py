@@ -3,11 +3,10 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
 
 from ageml import TemporalDegradation
+from ageml.datasets import load_avocado_sales
 
 
-dataset_url = 'data/avocados_demand_forecasting_dataset.csv'
-data = pd.read_csv(dataset_url)
-data = data.drop(columns=['date'])
+data = load_avocado_sales()
 X = data
 y = data['demand']
 
