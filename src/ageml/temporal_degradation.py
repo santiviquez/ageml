@@ -4,11 +4,6 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
 
-import random
-
-random.seed(42)
-np.random.seed(42)
-
 
 class TemporalDegradation:
     def __init__(self,
