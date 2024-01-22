@@ -13,6 +13,24 @@ class TemporalDegradation:
                  n_test_samples: int,
                  n_prod_samples: int,
                  n_simulations: int):
+        """
+        Initialize the TemporalDegradation instance.
+
+        Parameters
+        ----------
+        timestamp_column_name : str
+            Name of the timestamp column in the data.
+        target_column_name : str
+            Name of the target column in the data.
+        n_train_samples : int
+            Number of samples for training.
+        n_test_samples : int
+            Number of samples for testing.
+        n_prod_samples : int
+            Number of samples for production.
+        n_simulations : int
+            Number of simulations to run.
+        """
 
         self.timestamp_column_name = timestamp_column_name
         self.target_column_name = target_column_name
@@ -83,6 +101,21 @@ class TemporalDegradation:
 
     
     def run(self, data, model):
+        """
+        Run simulations with the provided data and model.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Input data.
+        model
+            Machine learning model.
+
+        Returns
+        -------
+        self
+        """
+
         self.data = data
         self.model = model
 
@@ -132,9 +165,36 @@ class TemporalDegradation:
         return results_agg_df
     
     def get_raw_results(self):
+        """
+        Get raw simulation results.
+
+        Returns
+        -------
+        self.results : pd.DataFrame
+            Raw simulation results.
+        """
+
         return self.results
 
     def get_results(self, freq, metric, min_test_error=None):
+        """
+        Get aggregated simulation results.
+
+        Parameters
+        ----------
+        freq : str
+            Frequency of the timestamp (e.g., 'D' for day, 'H' for hour).
+        metric
+            Evaluation metric function.
+        min_test_error : float, optional
+            Minimum test error for model validity.
+
+        Returns
+        -------
+        self.results_agg_df : pd.DataFrame
+            Aggregated simulation results.
+        """
+
         if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_error"]) and \
             self.freq == freq and self.metric == metric and self.min_test_error == min_test_error:
             return self.results_agg_df
@@ -169,6 +229,24 @@ class TemporalDegradation:
 
 
     def plot(self, freq, metric, min_test_error=None, plot_name='Temporal degradation'):
+        """
+        Plot simulation results.
+
+        Parameters
+        ----------
+        freq : str
+            Frequency of the timestamp (e.g., 'D' for day, 'H' for hour).
+        metric
+            Evaluation metric function.
+        min_test_error : float, optional
+            Minimum test error for model validity.
+        plot_name : str, optional
+            Name of the plot.
+
+        Returns
+        -------
+        None
+        """
         self.plot_name = plot_name
         if all(hasattr(self, attr) for attr in ["freq", "metric", "min_test_error"]) and \
             self.freq == freq and self.metric == metric and self.min_test_error == min_test_error:
