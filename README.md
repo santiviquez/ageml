@@ -10,7 +10,7 @@ Disclaimer: This project is still in its early stages, so the code interface mig
 </p>
 
 ## Features
-Currently, this project implements one test to study the "aging" process that machine learning models can experience when in production due to covariate or concept shift.
+Currently, ageML implements one test to study the "aging" process that machine learning models can experience when in production due to covariate or concept shift.
 
 ### Temporal Degradation Test
 Examines how various models perform when trained on different samples of the same dataset. This framework is based on the aging framework developed by [Vela et al.](https://www.nature.com/articles/s41598-022-15245-z) in 2022.
